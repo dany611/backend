@@ -1,7 +1,9 @@
 const httpStatus = require('http-status');
-const { propertySoldStatus,propertySaleType, propertyVisibleType, propertyTypes } = require('../config/property');
+const { propertySoldStatus, propertySaleType, propertyVisibleType, propertyTypes } = require('../config/property');
 const { Property } = require('../models');
 const ApiError = require('../utils/ApiError');
+const fs = require('fs');
+const { join } = require('path');
 
 const createProperty = async (eventBody, currentUser) => {
   const property = new Property(eventBody);
@@ -46,21 +48,21 @@ const getPropertyById = async (id) => {
   return Property.findById(id);
 };
 
-const getPropertyAnalytics=async ()=>{
-  let totalProperties=await Property.count({});
-  let totalRentProperties=await Property.count({sale_type:propertySaleType.Rent});
-  let totalSaleProperties=await Property.count({sale_type:propertySaleType.Sale});
-  let totalAvailableProperties=await Property.count({visible_type:propertyVisibleType.Available});
-  let totalPropertiesOnPortal=await Property.count({visible_type:propertyVisibleType.ShowPortals});
-  let totalFeaturedProperties=await Property.count({visible_type:propertyVisibleType.Featured});
-  let totalShopProperties=await Property.count({type:propertyTypes.Shop});
-  let totalVillaProperties=await Property.count({type:propertyTypes.Villa});
-  let totalPlotProperties=await Property.count({type:propertyTypes.Plot});
-  let totalMasiaProperties=await Property.count({type:propertyTypes.Masia});
-  let totalAppartmentProperties=await Property.count({type:propertyTypes.Apartment});
-  let totalHotelProperties=await Property.count({type:propertyTypes.Hotel});
-  let totalSemiDetachedProperties=await Property.count({type:propertyTypes.SemiDetached});
-  let totalResturantProperties=await Property.count({type:propertyTypes.Restaurant});
+const getPropertyAnalytics = async () => {
+  let totalProperties = await Property.count({});
+  let totalRentProperties = await Property.count({ sale_type: propertySaleType.Rent });
+  let totalSaleProperties = await Property.count({ sale_type: propertySaleType.Sale });
+  let totalAvailableProperties = await Property.count({ visible_type: propertyVisibleType.Available });
+  let totalPropertiesOnPortal = await Property.count({ visible_type: propertyVisibleType.ShowPortals });
+  let totalFeaturedProperties = await Property.count({ visible_type: propertyVisibleType.Featured });
+  let totalShopProperties = await Property.count({ type: propertyTypes.Shop });
+  let totalVillaProperties = await Property.count({ type: propertyTypes.Villa });
+  let totalPlotProperties = await Property.count({ type: propertyTypes.Plot });
+  let totalMasiaProperties = await Property.count({ type: propertyTypes.Masia });
+  let totalAppartmentProperties = await Property.count({ type: propertyTypes.Apartment });
+  let totalHotelProperties = await Property.count({ type: propertyTypes.Hotel });
+  let totalSemiDetachedProperties = await Property.count({ type: propertyTypes.SemiDetached });
+  let totalResturantProperties = await Property.count({ type: propertyTypes.Restaurant });
 
   return {
     totalProperties,
@@ -78,9 +80,9 @@ const getPropertyAnalytics=async ()=>{
     totalShopProperties,
     totalVillaProperties,
     totalMasiaProperties,
-    totalResturantProperties
-  }
-}
+    totalResturantProperties,
+  };
+};
 
 const deletePropertyById = async (propertyId, currentUser) => {
   const property = await getPropertyById(propertyId);
@@ -107,11 +109,24 @@ const updatePropertyById = async (propertyId, updateBody, currentUser) => {
   return property;
 };
 
+const getPropertyPDF = async (propertyId) => {
+  // const property = await getPropertyById(propertyId);
+  // if (!property) {
+  //   throw new ApiError(httpStatus.NOT_FOUND, 'Property not found');
+  // }
+
+  const pdf = fs.readFileSync(join(__dirname, '0fdfd15f-270a-4182-9bed-0256b01abd12_sample_property.pdf'));
+  console.log(join(__dirname, '0fdfd15f-270a-4182-9bed-0256b01abd12_sample_property.pdf'));
+  console.log(pdf);
+  return pdf;
+};
+
 module.exports = {
   createProperty,
   getProperties,
   getPropertyById,
   deletePropertyById,
   updatePropertyById,
-  getPropertyAnalytics
+  getPropertyAnalytics,
+  getPropertyPDF,
 };

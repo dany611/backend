@@ -26,7 +26,7 @@ const getProperty = catchAsync(async (req, res) => {
 
 const deleteProperty = catchAsync(async (req, res) => {
   await propertyService.deletePropertyById(req.params.propertyId, req.user);
-  return res.json({message:"deleted"}).status(httpStatus.NO_CONTENT)
+  return res.json({ message: 'deleted' }).status(httpStatus.NO_CONTENT);
 });
 
 const updateProperty = catchAsync(async (req, res) => {
@@ -34,9 +34,16 @@ const updateProperty = catchAsync(async (req, res) => {
   res.send(property);
 });
 
-const getPropertyAnalytics= catchAsync(async (req, res) => {
+const getPropertyAnalytics = catchAsync(async (req, res) => {
   const result = await propertyService.getPropertyAnalytics();
   res.json(result);
+});
+
+const getPropertyPDF = catchAsync(async (req, res) => {
+  const result = await propertyService.getPropertyPDF(req.params.propertyId);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader(`Content-Disposition`, `attachment; filename="property_detail.pdf"`);
+  res.send(result);
 });
 
 module.exports = {
@@ -45,5 +52,6 @@ module.exports = {
   getProperty,
   deleteProperty,
   updateProperty,
-  getPropertyAnalytics
+  getPropertyAnalytics,
+  getPropertyPDF,
 };
