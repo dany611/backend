@@ -152,6 +152,8 @@ const getPropertyPDF = async (propertyId) => {
 
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath: '/usr/bin/chromium-browser',
+    ignoreDefaultArgs: ['--disable-extensions'],
   });
 
   const page = await browser.newPage();
