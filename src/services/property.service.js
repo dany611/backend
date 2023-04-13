@@ -2,8 +2,11 @@ const httpStatus = require('http-status');
 const { propertySoldStatus, propertySaleType, propertyVisibleType, propertyTypes } = require('../config/property');
 const { Property } = require('../models');
 const ApiError = require('../utils/ApiError');
+const { getFormattedAmountWithCurrency } = require('../utils/common');
 const fs = require('fs');
 const { join } = require('path');
+const { render } = require('mustache');
+const puppeteer = require('puppeteer');
 
 const createProperty = async (eventBody, currentUser) => {
   const property = new Property(eventBody);
@@ -110,14 +113,64 @@ const updatePropertyById = async (propertyId, updateBody, currentUser) => {
 };
 
 const getPropertyPDF = async (propertyId) => {
-  // const property = await getPropertyById(propertyId);
-  // if (!property) {
-  //   throw new ApiError(httpStatus.NOT_FOUND, 'Property not found');
-  // }
+  const property = await getPropertyById(propertyId);
+  if (!property) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Property not found');
+  }
 
-  const pdf = fs.readFileSync(join(__dirname, '0fdfd15f-270a-4182-9bed-0256b01abd12_sample_property.pdf'));
-  console.log(join(__dirname, '0fdfd15f-270a-4182-9bed-0256b01abd12_sample_property.pdf'));
-  console.log(pdf);
+  // const pdf = fs.readFileSync(join(__dirname, '0fdfd15f-270a-4182-9bed-0256b01abd12_sample_property.pdf'));
+  // console.log(join(__dirname, '0fdfd15f-270a-4182-9bed-0256b01abd12_sample_property.pdf'));
+  // console.log(pdf);
+  // return pdf;
+
+  const html = render(fs.readFileSync(join(__dirname, 'assets', 'property-detail-page1.html'), 'utf8'), {
+    id: propertyId,
+    type: propertyTypes[property.type],
+    saleOrRent: propertySaleType[property.sale_type],
+    price: getFormattedAmountWithCurrency(
+      property.sale_type === propertySaleType.Rent ? property.listing_agent?.price : property.selling_agent?.price
+    ),
+    location: property.city,
+    bedrooms: property.amenities?.beds,
+    bathrooms: property.amenities?.baths,
+    parking: property.amenities?.parking,
+    surface: property.amenities?.built,
+    terrace: property.amenities?.terrace,
+    qualification: 'D',
+    features: [
+      `${property.amenities?.beds} bedrooms`,
+      `${property.amenities?.baths} bathrooms`,
+      `${property.amenities?.parking} parking`,
+      `${property.amenities?.built} surface`,
+      `${property.amenities?.terrace} terrace`,
+      `${property.city} location`,
+      `D qualification`,
+    ],
+    image: property.images?.[0],
+    description: property.desc,
+  });
+
+  const browser = await puppeteer.launch({
+    headless: true,
+  });
+
+  const page = await browser.newPage();
+  await page.setContent(html, {
+    waitUntil: 'networkidle0',
+  });
+
+  const pdf = await page.pdf({
+    printBackground: true,
+    format: 'Letter',
+    margin: {
+      top: '10px',
+      left: '10px',
+      right: '10px',
+    },
+  });
+
+  await browser.close();
+
   return pdf;
 };
 
