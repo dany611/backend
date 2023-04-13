@@ -1,5 +1,12 @@
 const httpStatus = require('http-status');
-const { propertySoldStatus, propertySaleType, propertyVisibleType, propertyTypes } = require('../config/property');
+const {
+  propertySoldStatus,
+  propertySaleType,
+  propertyVisibleType,
+  propertyTypes,
+  propertyTypesReverseMap,
+  propertySaleTypeReverseMap,
+} = require('../config/property');
 const { Property } = require('../models');
 const ApiError = require('../utils/ApiError');
 const { getFormattedAmountWithCurrency } = require('../utils/common');
@@ -125,24 +132,22 @@ const getPropertyPDF = async (propertyId) => {
 
   const html = render(fs.readFileSync(join(__dirname, 'assets', 'property-detail-page1.html'), 'utf8'), {
     id: propertyId,
-    type: propertyTypes[property.type],
-    saleOrRent: propertySaleType[property.sale_type],
-    price: getFormattedAmountWithCurrency(
-      property.sale_type === propertySaleType.Rent ? property.listing_agent?.price : property.selling_agent?.price
-    ),
+    type: propertyTypesReverseMap[property.type],
+    saleOrRent: propertySaleTypeReverseMap[property.sale_type],
+    price: getFormattedAmountWithCurrency(property.price),
     location: property.city,
-    bedrooms: property.amenities?.beds,
-    bathrooms: property.amenities?.baths,
-    parking: property.amenities?.parking,
-    surface: property.amenities?.built,
-    terrace: property.amenities?.terrace,
+    bedrooms: property.amenities?.beds || 0,
+    bathrooms: property.amenities?.baths || 0,
+    parking: property.amenities?.parking || 0,
+    surface: property.amenities?.built || '0 m2',
+    terrace: property.amenities?.terrace || '0 m2',
     qualification: 'D',
     features: [
-      `${property.amenities?.beds} bedrooms`,
-      `${property.amenities?.baths} bathrooms`,
-      `${property.amenities?.parking} parking`,
-      `${property.amenities?.built} surface`,
-      `${property.amenities?.terrace} terrace`,
+      `${property.amenities?.beds || 0} bedrooms`,
+      `${property.amenities?.baths || 0} bathrooms`,
+      `${property.amenities?.parking || 0} parking`,
+      `${property.amenities?.built || '0 m2'} surface`,
+      `${property.amenities?.terrace || '0 m2'} terrace`,
       `${property.city} location`,
       `D qualification`,
     ],

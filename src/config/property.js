@@ -25,9 +25,27 @@ const propertySoldStatus = {
   UnSold: 2,
 };
 
+const propertyTypesReverseMap = {
+  [propertyTypes.Villa]: 'Villa',
+  [propertyTypes.Shop]: 'Shop',
+  [propertyTypes.Masia]: 'Masia',
+  [propertyTypes.Apartment]: 'Apartment',
+  [propertyTypes.Plot]: 'Plot',
+  [propertyTypes.Hotel]: 'Hotel',
+  [propertyTypes.SemiDetached]: 'SemiDetached',
+  [propertyTypes.Restaurant]: 'Restaurant',
+};
+
+const propertySaleTypeReverseMap = {
+  [propertySaleType.Sale]: 'Sale',
+  [propertySaleType.Rent]: 'Rent',
+};
+
 module.exports = {
   propertyTypes,
   propertySaleType,
   propertyVisibleType,
   propertySoldStatus,
+  propertySaleTypeReverseMap,
+  propertyTypesReverseMap
 };
