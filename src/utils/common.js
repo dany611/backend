@@ -1,5 +1,5 @@
-function getFormattedAmountWithCurrency(amount, currency = 'USD') {
-  const formatter = new Intl.NumberFormat('en-US', {
+function getFormattedAmountWithCurrency(amount, currency = 'EUR') {
+  const formatter = new Intl.NumberFormat('en-ES', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 0,
